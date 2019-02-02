@@ -31,11 +31,23 @@ struct Block {
 /// and store the chain
 #[derive(Deserialize, Serialize, Debug)]
 struct Blockchain {
+    #[serde(skip_serializing)]
     current_transactions: Vec<Transaction>,
     chain: Vec<Block>
 }
 
 impl Blockchain {
+    fn new() -> Blockchain {
+        let mut blockchain = Blockchain {
+            current_transactions: Vec::new(),
+            chain: Vec::new(),
+        };
+
+        // Create the genesis block
+        blockchain.new_block(100, String::from("1"));
+        blockchain
+    }
+
     /// Create a new Block and adds it to the chain list
     /// Set current transactions as transactions for the Block
     /// and empty current transactions list for the next Block 
@@ -78,21 +90,17 @@ impl Blockchain {
 }
 
 fn main() {
-    let mut blockchain = Blockchain {
-        current_transactions:  Vec::new(),
-        chain: Vec::new(),
-    };
+    let mut blockchain = Blockchain::new();
     
     blockchain.new_transaction(String::from("coni"), String::from("ceni"), 152);
     blockchain.new_transaction(String::from("AA"), String::from("BB"), 44);
     blockchain.new_transaction(String::from("CC"), String::from("DD"), 94);
-    blockchain.new_block(987654321, String::from("previous hash - 1"));
-
     blockchain.new_transaction(String::from("mdemir"), String::from("ali"), 22);
+
     blockchain.new_block(987654321, String::from("previous hash - 1 - 1"));
 
-    let ser = serde_json::to_string(&blockchain).unwrap();
+    let ser = serde_json::to_string_pretty(&blockchain).unwrap();
     println!("{}", ser);
 
-    println!("{:?}", Blockchain::hash(ser.as_str()));
+    //println!("{:?}", Blockchain::hash(ser.as_str()));
 }
