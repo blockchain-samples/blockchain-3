@@ -8,6 +8,7 @@ use std::time::{SystemTime, UNIX_EPOCH, Duration};
 use crypto::sha2::Sha256;
 use crypto::digest::Digest;
 
+/// Represents a transaction
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct Transaction {
     sender: String,
@@ -15,6 +16,7 @@ struct Transaction {
     amount: i64
 }
 
+/// Represents a Block
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct Block {
     index: usize,
@@ -24,16 +26,21 @@ struct Block {
     previous_hash: String,
 }
 
+/// Represents the Blockchain
+/// Store current transactions for the next Block
+/// and store the chain
 #[derive(Deserialize, Serialize, Debug)]
 struct Blockchain {
     current_transactions: Vec<Transaction>,
-    chain: Vec<Block>,
-    //nodes: Vec<String>, // It should be set() in python
+    chain: Vec<Block>
 }
 
 impl Blockchain {
+    /// Create a new Block and adds it to the chain list
+    /// Set current transactions as transactions for the Block
+    /// and empty current transactions list for the next Block 
+    /// Returns a new block
     fn new_block(&mut self, proof: usize, previous_hash: String) -> Block {
-        // Returns a new block
         let tm = SystemTime::now().duration_since(UNIX_EPOCH)
             .expect("Time went backwards");
         let block = Block {
@@ -47,18 +54,22 @@ impl Blockchain {
         self.current_transactions = Vec::new();
         block
     }
+
+    /// Adds a new transaction to the list of current transactions
     fn new_transaction(&mut self, sender: String, recipient: String, amount: i64) {
         let tx = Transaction { sender: sender, recipient: recipient, amount: amount };
         self.current_transactions.push(tx);
     }
+
+    /// Creates a SHA-256 hash of a Block
     fn hash(block: &str) -> String{
-        // Creates a SHA-256 hash of a Block
         let ser = serde_json::to_string(&block).unwrap();
         let mut hasher = Sha256::new();
         hasher.input_str(ser.as_str());
         hasher.result_str()
     }
 
+    /// Returns the last Block in the chain
     fn last_block(&self) -> &Block {
         let length = self.chain.len();
         // self.chain.get(length - 1)
@@ -82,6 +93,6 @@ fn main() {
 
     let ser = serde_json::to_string(&blockchain).unwrap();
     println!("{}", ser);
-    
+
     println!("{:?}", Blockchain::hash(ser.as_str()));
 }
