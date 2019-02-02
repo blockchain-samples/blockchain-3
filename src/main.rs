@@ -58,6 +58,12 @@ impl Blockchain {
         hasher.input_str(ser.as_str());
         hasher.result_str()
     }
+
+    fn last_block(&self) -> &Block {
+        let length = self.chain.len();
+        // self.chain.get(length - 1)
+        &self.chain[length - 1]
+    }
 }
 
 fn main() {
@@ -76,6 +82,6 @@ fn main() {
 
     let ser = serde_json::to_string(&blockchain).unwrap();
     println!("{}", ser);
-
+    
     println!("{:?}", Blockchain::hash(ser.as_str()));
 }
